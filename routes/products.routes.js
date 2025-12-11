@@ -1,58 +1,32 @@
-const express = require("express");
-const ProductManager = require("../managers/ProductManager");
-const router = express.Router();
-const pm = new ProductManager();
+import { Router } from "express";
+import ProductManager from "../dao/productManager.js";
+
+const router = Router();
+const pm = new ProductManager("./data/products.json");
 
 router.get("/", async (req, res) => {
-  try {
-    const products = await pm.getProducts();
-    res.json(products);
-  } catch (err) {
-    res.status(500).json({ error: "Error al leer productos" });
-  }
+  const products = await pm.getProducts();
+  res.json(products);
 });
 
 router.get("/:pid", async (req, res) => {
-  try {
-    const product = await pm.getProductById(req.params.pid);
-    if (!product) return res.status(404).json({ error: "Producto no encontrado" });
-    res.json(product);
-  } catch (err) {
-    res.status(500).json({ error: "Error al buscar producto" });
-  }
+  const product = await pm.getProductById(req.params.pid);
+  res.json(product);
 });
 
 router.post("/", async (req, res) => {
-  try {
-    const newProduct = await pm.addProduct(req.body);
-    res.status(201).json(newProduct);
-  } catch (err) {
-    res.status(500).json({ error: "Error al crear producto" });
-  }
+  const newProduct = await pm.addProduct(req.body);
+  res.json(newProduct);
 });
 
 router.put("/:pid", async (req, res) => {
-  try {
-    if (req.body.id && String(req.body.id) !== String(req.params.pid)) {
-      // impedir cambio de id
-      return res.status(400).json({ error: "No está permitido modificar el id" });
-    }
-    const updated = await pm.updateProduct(req.params.pid, req.body);
-    if (!updated) return res.status(404).json({ error: "Producto no encontrado" });
-    res.json(updated);
-  } catch (err) {
-    res.status(500).json({ error: "Error al actualizar producto" });
-  }
+  const updated = await pm.updateProduct(req.params.pid, req.body);
+  res.json(updated);
 });
 
 router.delete("/:pid", async (req, res) => {
-  try {
-    const deleted = await pm.deleteProduct(req.params.pid);
-    if (!deleted) return res.status(404).json({ error: "Producto no encontrado" });
-    res.json({ message: "Producto eliminado" });
-  } catch (err) {
-    res.status(500).json({ error: "Error al eliminar producto" });
-  }
+  const deleted = await pm.deleteProduct(req.params.pid);
+  res.json(deleted);
 });
 
-module.exports = router;
+export default router;
