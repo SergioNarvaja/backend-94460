@@ -6,7 +6,7 @@ import { fileURLToPath } from "url";
 
 import productsRouter from "./routes/products.routes.js";
 import cartsRouter from "./routes/carts.routes.js";
-import ProductManager from "./dao/productManager.js";
+import ProductManager from "./managers/ProductManager.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -47,15 +47,14 @@ io.on("connection", (socket) => {
   console.log("Cliente conectado");
 
   socket.on("newProduct", async (product) => {
-
-    const saved = await productManager.addProduct(product);
-
-    io.emit("updateProducts", saved);
-  });
+  await productManager.addProduct(product);
+  const products = await productManager.getProducts();
+  io.emit("productsUpdated", products);
+});
 
   socket.on("deleteProduct", async (id) => {
-    await productManager.deleteProduct(id);
-
-    io.emit("removeProduct", id);
-  });
+  await productManager.deleteProduct(id);
+  const products = await productManager.getProducts();
+  io.emit("productsUpdated", products);
+});
 });

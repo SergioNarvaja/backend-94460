@@ -1,5 +1,5 @@
 import { Router } from "express";
-import ProductManager from "../dao/productManager.js";
+import ProductManager from "../managers/ProductManager.js";
 
 const router = Router();
 const pm = new ProductManager("./data/products.json");
@@ -25,8 +25,8 @@ router.put("/:pid", async (req, res) => {
 });
 
 router.delete("/:pid", async (req, res) => {
-  const deleted = await pm.deleteProduct(req.params.pid);
-  res.json(deleted);
-});
-
+  const { pid } = req.params;
+  await productManager.deleteProduct(pid);
+  res.send({ status: "ok" });
+})
 export default router;
